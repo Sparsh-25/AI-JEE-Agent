@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JEE AI Tutor</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #f5f5f5;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 720px;
+      height: 90vh;
+      background: white;
+      border-radius: 16px;
+      border: 1px solid #e5e5e5;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .header {
+      padding: 16px 20px;
+      border-bottom: 1px solid #e5e5e5;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .header-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #1D9E75;
+    }
+
+    .header h1 {
+      font-size: 16px;
+      font-weight: 600;
+      color: #111;
+    }
+
+    .header span {
+      font-size: 12px;
+      color: #888;
+      margin-left: auto;
+    }
+
+    .messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .message {
+      display: flex;
+      flex-direction: column;
+      max-width: 80%;
+    }
+
+    .message.user {
+      align-self: flex-end;
+      align-items: flex-end;
+    }
+
+    .message.agent {
+      align-self: flex-start;
+      align-items: flex-start;
+    }
+
+    .bubble {
+      padding: 10px 14px;
+      border-radius: 16px;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .message.user .bubble {
+      background: #111;
+      color: white;
+      border-bottom-right-radius: 4px;
+    }
+
+    .message.agent .bubble {
+      background: #f0f0f0;
+      color: #111;
+      border-bottom-left-radius: 4px;
+    }
+
+    .message.agent.loading .bubble {
+      color: #888;
+      font-style: italic;
+    }
+
+    .timestamp {
+      font-size: 11px;
+      color: #bbb;
+      margin-top: 4px;
+      padding: 0 4px;
+    }
+
+    .input-row {
+      padding: 16px 20px;
+      border-top: 1px solid #e5e5e5;
+      display: flex;
+      gap: 10px;
+      align-items: flex-end;
+    }
+
+    textarea {
+      flex: 1;
+      padding: 10px 14px;
+      border: 1px solid #e5e5e5;
+      border-radius: 12px;
+      font-size: 14px;
+      font-family: inherit;
+      resize: none;
+      outline: none;
+      max-height: 120px;
+      min-height: 42px;
+      line-height: 1.5;
+    }
+
+    textarea:focus {
+      border-color: #111;
+    }
+
+    button {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      background: #111;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: opacity 0.15s;
+    }
+
+    button:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    button svg {
+      width: 18px;
+      height: 18px;
+      fill: white;
+    }
+
+    .empty-state {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: #bbb;
+      gap: 8px;
+    }
+
+    .empty-state p {
+      font-size: 14px;
+    }
+
+    .suggestions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+      margin-top: 12px;
+      padding: 0 20px;
+    }
+
+    .suggestion {
+      padding: 6px 12px;
+      border: 1px solid #e5e5e5;
+      border-radius: 20px;
+      font-size: 12px;
+      color: #555;
+      cursor: pointer;
+      background: white;
+      transition: border-color 0.15s;
+    }
+
+    .suggestion:hover {
+      border-color: #111;
+      color: #111;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <div class="header-dot"></div>
+    <h1>JEE AI Tutor</h1>
+    <span id="session-label">session: default</span>
+  </div>
+
+  <div class="messages" id="messages">
+    <div class="empty-state" id="empty-state">
+      <p>Ask me anything from your JEE notes</p>
+      <div class="suggestions">
+        <button class="suggestion" onclick="fillInput('What is Newton\\'s second law?')">Newton's second law</button>
+        <button class="suggestion" onclick="fillInput('Calculate KE for 10kg at 5 m/s')">Calculate KE</button>
+        <button class="suggestion" onclick="fillInput('What is Coulomb\\'s law?')">Coulomb's law</button>
+        <button class="suggestion" onclick="fillInput('Explain work-energy theorem')">Work-energy theorem</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="input-row">
+    <textarea
+      id="input"
+      placeholder="Ask a JEE question..."
+      rows="1"
+      onkeydown="handleKey(event)"
+      oninput="autoResize(this)"
+    ></textarea>
+    <button id="send-btn" onclick="sendMessage()">
+      <svg viewBox="0 0 24 24"><path d="M2 21l21-9L2 3v7l15 2-15 2v7z"/></svg>
+    </button>
+  </div>
+</div>
+
+<script>
+  const API_URL = "http://localhost:8000/chat";
+  const sessionId = "session_" + Math.random().toString(36).substr(2, 9);
+  document.getElementById("session-label").textContent = "session: " + sessionId.substr(8);
+
+  function autoResize(el) {
+    el.style.height = "42px";
+    el.style.height = Math.min(el.scrollHeight, 120) + "px";
+  }
+
+  function handleKey(e) {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  }
+
+  function fillInput(text) {
+    document.getElementById("input").value = text;
+    document.getElementById("input").focus();
+  }
+
+  function getTime() {
+    return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  }
+
+  function addMessage(role, text, isLoading = false) {
+    const empty = document.getElementById("empty-state");
+    if (empty) empty.remove();
+
+    const messages = document.getElementById("messages");
+    const div = document.createElement("div");
+    div.className = `message ${role}${isLoading ? " loading" : ""}`;
+
+    div.innerHTML = `
+      <div class="bubble">${text}</div>
+      <div class="timestamp">${getTime()}</div>
+    `;
+
+    messages.appendChild(div);
+    messages.scrollTop = messages.scrollHeight;
+    return div;
+  }
+
+  async function sendMessage() {
+    const input = document.getElementById("input");
+    const btn = document.getElementById("send-btn");
+    const question = input.value.trim();
+
+    if (!question) return;
+
+    input.value = "";
+    input.style.height = "42px";
+    btn.disabled = true;
+
+    addMessage("user", question);
+
+    const loadingMsg = addMessage("agent", "Thinking...", true);
+
+    try {
+      const response = await fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ question, session_id: sessionId })
+      });
+
+      const data = await response.json();
+      loadingMsg.remove();
+      addMessage("agent", data.answer);
+
+    } catch (error) {
+      loadingMsg.remove();
+      addMessage("agent", "Could not reach the server. Make sure uvicorn is running.");
+    }
+
+    btn.disabled = false;
+    input.focus();
+  }
+</script>
+
+</body>
+</html>

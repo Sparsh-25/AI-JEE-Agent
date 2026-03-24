@@ -1,18 +1,20 @@
 # JEE AI Agent
 
-A full-stack AI-powered JEE tutor with a LangGraph agent, RAG pipeline, 
-REST API, and chat interface. Ask questions from your NCERT notes in natural 
-language — the agent retrieves relevant content and answers with context.
+A full-stack multilingual AI-powered JEE tutor with a LangGraph agent, RAG 
+pipeline, REST API, and chat interface. Supports Hindi and English — 
+automatically detects language, translates queries for retrieval, and 
+responds in the user's language.
 
 ![JEE AI Tutor Chat UI](screenshot.png)
 
 ## How it works
 
 1. NCERT PDFs are chunked, embedded, and stored in ChromaDB
-2. A LangGraph ReAct agent receives questions via FastAPI
-3. Agent decides: theory → search vector DB, math → calculator
-4. Each browser session gets independent conversation memory
-5. Clean chat UI served via index.html
+2. User sends a question in Hindi or English via the chat UI
+3. Language is detected automatically using langdetect
+4. Hindi queries are translated to English before ChromaDB search
+5. LangGraph agent retrieves relevant content and answers
+6. Response is returned in the same language the user asked in
 
 ## Tech Stack
 - Python 3.12
@@ -21,7 +23,8 @@ language — the agent retrieves relevant content and answers with context.
 - HuggingFace sentence-transformers (all-MiniLM-L6-v2)
 - ChromaDB (local vector database)
 - FastAPI + Uvicorn
-- Vanilla HTML/CSS/JS (no frameworks)
+- langdetect (language detection)
+- Vanilla HTML/CSS/JS
 
 ## Setup
 
@@ -41,7 +44,7 @@ language — the agent retrieves relevant content and answers with context.
 ```bash
    pip install langchain langchain-community langchain-groq langchain-chroma
    pip install chromadb sentence-transformers groq python-dotenv pypdf
-   pip install langgraph numexpr fastapi uvicorn python-multipart
+   pip install langgraph numexpr fastapi uvicorn python-multipart langdetect
 ```
 
 4. Add your Groq API key
@@ -67,6 +70,26 @@ language — the agent retrieves relevant content and answers with context.
    Open index.html in your browser
 ```
 
+## Multilingual Support
+
+The agent automatically detects Hindi and English input. Hindi queries are 
+translated to English before searching the knowledge base, with responses 
+returned in the user's original language.
+
+| Input | Language | Behaviour |
+|---|---|---|
+| "What is electric field?" | English | Direct ChromaDB search |
+| "Vidyut kshetra kya hai?" | Hindi | Translate → search → reply in Hindi |
+
+**Example:**
+```
+User:  Vidyut kshetra ki SI unit kya hai?
+Agent: Vidyut kshetra ki SI unit Newton per Coulomb (N/C) hai.
+```
+
+Extensible to other Indian languages (Bengali, Tamil, Telugu etc.) 
+via AI4Bharat models.
+
 ## API Reference
 
 | Method | Endpoint | Description |
@@ -78,7 +101,7 @@ language — the agent retrieves relevant content and answers with context.
 **POST /chat request:**
 ```json
 {
-  "question": "What is Newton's second law?",
+  "question": "Vidyut kshetra ki SI unit kya hai?",
   "session_id": "your-session-id"
 }
 ```
@@ -86,7 +109,7 @@ language — the agent retrieves relevant content and answers with context.
 **POST /chat response:**
 ```json
 {
-  "answer": "Newton's second law states that F = ma...",
+  "answer": "Vidyut kshetra ki SI unit Newton per Coulomb (N/C) hai.",
   "session_id": "your-session-id"
 }
 ```
@@ -95,7 +118,7 @@ language — the agent retrieves relevant content and answers with context.
 
 | Tool | Trigger | Description |
 |---|---|---|
-| search_jee_material | Theory questions | Searches ChromaDB for relevant chunks |
+| search_jee_material | Theory questions | Searches ChromaDB, supports Hindi + English |
 | calculator | Math problems | Evaluates mathematical expressions |
 
 ## Project Structure
@@ -105,7 +128,7 @@ JEE-AI-Agent/
 ├── chroma_db/          # Auto-generated vector database
 ├── rag_pipeline.py     # Loads PDFs, creates vector DB (run once)
 ├── rag_chain.py        # Simple RAG without agent
-├── agent.py            # LangGraph agent with tools and memory
+├── agent.py            # LangGraph agent with tools, memory, multilingual
 ├── main.py             # FastAPI server with session management
 ├── index.html          # Chat UI
 └── .env                # API keys (never commit this)
@@ -119,4 +142,5 @@ JEE-AI-Agent/
 - [x] Conversation memory per session
 - [x] FastAPI REST API with error handling and logging
 - [x] Chat UI with session management
-- [ ] Multilingual support
+- [x] Hindi language detection and translation
+- [x] Multilingual responses

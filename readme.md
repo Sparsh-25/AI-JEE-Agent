@@ -42,9 +42,7 @@ responds in the user's language.
 
 3. Install dependencies
 ```bash
-   pip install langchain langchain-community langchain-groq langchain-chroma
-   pip install chromadb sentence-transformers groq python-dotenv pypdf
-   pip install langgraph numexpr fastapi uvicorn python-multipart langdetect
+   pip install -r requirements.txt
 ```
 
 4. Add your Groq API key

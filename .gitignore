@@ -1,6 +1,27 @@
-venv/
+# ── Secrets — NEVER push these ──────────────────────────────────────────────
 .env
-chroma_db/
+
+# ── Python cache ─────────────────────────────────────────────────────────────
 __pycache__/
 *.pyc
+*.pyo
+
+# ── Virtual environment ───────────────────────────────────────────────────────
+venv/
+.venv/
+
+# ── macOS junk ────────────────────────────────────────────────────────────────
 .DS_Store
+
+# ── Evaluation outputs (local only, no need in repo) ─────────────────────────
+evaluation_results.json
+evaluation_results.csv
+
+# ── Scratch / trial work ──────────────────────────────────────────────────────
+trial/
+
+# ── NOTE: chroma_db/ is intentionally NOT ignored ─────────────────────────────
+# It contains your vector database. Render needs it to answer queries.
+# If it's large, consider using Git LFS: https://git-lfs.github.com/
+
+data/

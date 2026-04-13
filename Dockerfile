@@ -1,5 +1,6 @@
 # ─────────────────────────────────────────────────────────────────────────────
 # Dockerfile — AI JEE Agent
+# Compatible with: HuggingFace Spaces (port 7860), Render (port 8000), local
 # ─────────────────────────────────────────────────────────────────────────────
 #
 # WHAT IS DOCKER?
@@ -54,14 +55,15 @@ COPY . .
 # Step 7: Expose port 8000
 #   This tells Docker "this container listens on port 8000".
 #   Cloud platforms like Render will map this to their public port.
-EXPOSE 8000
+# HuggingFace Spaces uses 7860, Render/local uses 8000
+EXPOSE 7860
 
 # Step 8: Healthcheck
 #   Render and other platforms use this to know if your container is alive.
 #   Every 30s, it curls the / endpoint. If it fails 3 times in a row,
 #   the container is marked "unhealthy" and restarted.
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
-    CMD curl -f http://localhost:8000/ || exit 1
+    CMD curl -f http://localhost:7860/ || exit 1
 
 # Step 9: Start the server
 #   uvicorn = the ASGI server that runs FastAPI
@@ -69,4 +71,5 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
 #   --host 0.0.0.0 = listen on ALL network interfaces (required for Docker)
 #   --port 8000 = must match EXPOSE above
 #   --workers 1 = use 1 process (ChromaDB doesn't safe to share across processes)
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "1"]
+# PORT env var: HuggingFace sets it to 7860 automatically
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "7860", "--workers", "1"]

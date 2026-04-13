@@ -17,4 +17,4 @@ python-multipart==0.0.22
 pypdf==6.9.1
 langdetect==1.0.9
 numexpr==2.14.1
-requests==2.32.3
+requests==2.32.5

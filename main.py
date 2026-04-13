@@ -38,7 +38,7 @@ import logging
 import time
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, FileResponse
 from pydantic import BaseModel
 from agent import ask_agent, search_jee_material
 
@@ -128,8 +128,14 @@ async def log_requests(request: Request, call_next):
 # ENDPOINTS
 # ──────────────────────────────────────────────────────────────────────────────
 
-@app.get("/", tags=["Health"])
-def root():
+@app.get("/", tags=["UI"])
+def serve_ui():
+    """Serves the Chat UI frontend."""
+    return FileResponse("index.html")
+
+
+@app.get("/health", tags=["Health"])
+def health_check():
     """Health check. Used by Docker healthcheck and deployment platforms."""
     return {"status": "JEE Agent is running", "version": "1.1.0"}
 

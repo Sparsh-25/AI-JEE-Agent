@@ -1,0 +1,29 @@
+# ── Python cache ────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+
+# ── Virtual environments ─────────────────────────────────────────────────────
+venv/
+env/
+.env
+.venv/
+
+# ── Development tools ────────────────────────────────────────────────────────
+.git/
+.gitignore
+.DS_Store
+*.log
+
+# ── Trial / scratch dirs ─────────────────────────────────────────────────────
+trial/
+
+# ── Evaluation outputs (don't bake into image) ───────────────────────────────
+evaluation_results.json
+evaluation_results.csv
+
+# NOTE: We DO include chroma_db/ in the image so the vector database
+# is baked in and the app works without re-running rag_pipeline.py.
+# If your chroma_db is large, consider mounting it as a Docker volume instead.

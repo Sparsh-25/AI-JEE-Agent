@@ -4,71 +4,104 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>JEE AI Tutor</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background: #f5f5f5;
+      font-family: 'Outfit', sans-serif;
+      background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
       height: 100vh;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
+      color: #e2e8f0;
     }
 
     .container {
       width: 100%;
-      max-width: 720px;
-      height: 90vh;
-      background: white;
-      border-radius: 16px;
-      border: 1px solid #e5e5e5;
+      max-width: 760px;
+      height: 92vh;
+      background: rgba(20, 20, 30, 0.4);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border-radius: 24px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
       display: flex;
       flex-direction: column;
       overflow: hidden;
     }
 
     .header {
-      padding: 16px 20px;
-      border-bottom: 1px solid #e5e5e5;
+      padding: 20px 24px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 12px;
+      background: rgba(0,0,0,0.1);
     }
 
     .header-dot {
-      width: 10px;
-      height: 10px;
+      width: 12px;
+      height: 12px;
       border-radius: 50%;
-      background: #1D9E75;
+      background: #00f2fe;
+      box-shadow: 0 0 10px #00f2fe;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(0, 242, 254, 0.7); }
+      70% { box-shadow: 0 0 0 10px rgba(0, 242, 254, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(0, 242, 254, 0); }
     }
 
     .header h1 {
-      font-size: 16px;
-      font-weight: 600;
-      color: #111;
+      font-size: 18px;
+      font-weight: 500;
+      color: #fff;
+      letter-spacing: 0.5px;
     }
 
     .header span {
-      font-size: 12px;
-      color: #888;
+      font-size: 13px;
+      color: rgba(255,255,255,0.5);
       margin-left: auto;
+      background: rgba(255,255,255,0.05);
+      padding: 4px 10px;
+      border-radius: 12px;
     }
 
     .messages {
       flex: 1;
       overflow-y: auto;
-      padding: 20px;
+      padding: 24px;
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: 20px;
+      scroll-behavior: smooth;
+    }
+    
+    .messages::-webkit-scrollbar {
+      width: 6px;
+    }
+    .messages::-webkit-scrollbar-thumb {
+      background: rgba(255,255,255,0.1);
+      border-radius: 10px;
     }
 
     .message {
       display: flex;
       flex-direction: column;
-      max-width: 80%;
+      max-width: 82%;
+      animation: slideIn 0.3s ease-out forwards;
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     .message.user {
@@ -82,85 +115,116 @@
     }
 
     .bubble {
-      padding: 10px 14px;
-      border-radius: 16px;
-      font-size: 14px;
+      padding: 12px 18px;
+      border-radius: 20px;
+      font-size: 15px;
       line-height: 1.6;
+      font-weight: 400;
     }
 
     .message.user .bubble {
-      background: #111;
-      color: white;
+      background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+      color: #000;
       border-bottom-right-radius: 4px;
+      box-shadow: 0 4px 15px rgba(0, 242, 254, 0.3);
     }
 
     .message.agent .bubble {
-      background: #f0f0f0;
-      color: #111;
+      background: rgba(255, 255, 255, 0.08);
+      color: #f8fafc;
       border-bottom-left-radius: 4px;
+      border: 1px solid rgba(255,255,255,0.05);
     }
 
     .message.agent.loading .bubble {
-      color: #888;
+      color: #94a3b8;
       font-style: italic;
+      display: flex;
+      gap: 4px;
+      align-items: center;
     }
 
     .timestamp {
       font-size: 11px;
-      color: #bbb;
-      margin-top: 4px;
+      color: rgba(255,255,255,0.4);
+      margin-top: 6px;
       padding: 0 4px;
     }
 
     .input-row {
-      padding: 16px 20px;
-      border-top: 1px solid #e5e5e5;
+      padding: 16px 24px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
       display: flex;
-      gap: 10px;
+      gap: 12px;
       align-items: flex-end;
+      background: rgba(0,0,0,0.1);
     }
 
     textarea {
       flex: 1;
-      padding: 10px 14px;
-      border: 1px solid #e5e5e5;
-      border-radius: 12px;
-      font-size: 14px;
+      padding: 14px 18px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      font-size: 15px;
       font-family: inherit;
+      color: #fff;
       resize: none;
       outline: none;
       max-height: 120px;
-      min-height: 42px;
+      min-height: 48px;
       line-height: 1.5;
+      transition: all 0.2s;
+    }
+
+    textarea::placeholder {
+      color: rgba(255,255,255,0.3);
     }
 
     textarea:focus {
-      border-color: #111;
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(0, 242, 254, 0.5);
+      box-shadow: 0 0 15px rgba(0, 242, 254, 0.15);
     }
 
-    button {
-      width: 42px;
-      height: 42px;
-      border-radius: 12px;
-      background: #111;
+    button.send-action {
+      width: 48px;
+      height: 48px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
       border: none;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
       flex-shrink: 0;
-      transition: opacity 0.15s;
+      transition: all 0.2s;
+      box-shadow: 0 4px 15px rgba(0, 242, 254, 0.3);
     }
 
-    button:disabled {
-      opacity: 0.4;
+    button.send-action:hover:not(:disabled) {
+      transform: translateY(-2px) scale(1.05);
+      box-shadow: 0 6px 20px rgba(0, 242, 254, 0.4);
+    }
+
+    button.send-action:active:not(:disabled) {
+      transform: translateY(0) scale(0.95);
+    }
+
+    button.send-action:disabled {
+      background: rgba(255, 255, 255, 0.1);
+      box-shadow: none;
       cursor: not-allowed;
     }
 
-    button svg {
-      width: 18px;
-      height: 18px;
-      fill: white;
+    button.send-action svg {
+      width: 20px;
+      height: 20px;
+      fill: #000;
+    }
+
+    button.send-action:disabled svg {
+      fill: rgba(255,255,255,0.4);
     }
 
     .empty-state {
@@ -169,37 +233,42 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      color: #bbb;
-      gap: 8px;
+      color: #94a3b8;
+      gap: 16px;
     }
 
     .empty-state p {
-      font-size: 14px;
+      font-size: 16px;
+      font-weight: 300;
     }
 
     .suggestions {
       display: flex;
       flex-wrap: wrap;
-      gap: 8px;
+      gap: 10px;
       justify-content: center;
-      margin-top: 12px;
+      margin-top: 10px;
       padding: 0 20px;
     }
 
     .suggestion {
-      padding: 6px 12px;
-      border: 1px solid #e5e5e5;
-      border-radius: 20px;
-      font-size: 12px;
-      color: #555;
+      padding: 8px 16px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 30px;
+      font-size: 13px;
+      font-family: inherit;
+      color: #e2e8f0;
       cursor: pointer;
-      background: white;
-      transition: border-color 0.15s;
+      background: rgba(255, 255, 255, 0.05);
+      transition: all 0.2s;
+      backdrop-filter: blur(5px);
     }
 
     .suggestion:hover {
-      border-color: #111;
-      color: #111;
+      background: rgba(0, 242, 254, 0.15);
+      border-color: rgba(0, 242, 254, 0.4);
+      color: #fff;
+      transform: translateY(-1px);
     }
   </style>
 </head>
@@ -214,12 +283,13 @@
 
   <div class="messages" id="messages">
     <div class="empty-state" id="empty-state">
-      <p>Ask me anything from your JEE notes</p>
+      <p>Ask me anything from your JEE notes...</p>
       <div class="suggestions">
-        <button class="suggestion" onclick="fillInput('What is Newton&apos;s second law?')">Newton's second law</button>
-        <button class="suggestion" onclick="fillInput('Calculate KE for 10kg at 5 m/s')">Calculate KE</button>
-        <button class="suggestion" onclick="fillInput('What is Coulomb&apos;s law?')">Coulomb's law</button>
-        <button class="suggestion" onclick="fillInput('Explain work-energy theorem')">Work-energy theorem</button>
+        <!-- Using backticks to avoid syntax errors with single quotes inside JS strings -->
+        <button class="suggestion" onclick="fillInput(`What is Newton's second law?`)">Newton's second law</button>
+        <button class="suggestion" onclick="fillInput(`Calculate KE for 10kg at 5 m/s`)">Calculate KE</button>
+        <button class="suggestion" onclick="fillInput(`What is Coulomb's law?`)">Coulomb's law</button>
+        <button class="suggestion" onclick="fillInput(`Explain the work-energy theorem`)">Work-energy theorem</button>
       </div>
     </div>
   </div>
@@ -227,12 +297,12 @@
   <div class="input-row">
     <textarea
       id="input"
-      placeholder="Ask a JEE question..."
+      placeholder="Type a physics, chemistry, or math question..."
       rows="1"
       onkeydown="handleKey(event)"
       oninput="autoResize(this)"
     ></textarea>
-    <button id="send-btn" onclick="sendMessage()">
+    <button id="send-btn" class="send-action" onclick="sendMessage()">
       <svg viewBox="0 0 24 24"><path d="M2 21l21-9L2 3v7l15 2-15 2v7z"/></svg>
     </button>
   </div>
@@ -244,7 +314,7 @@
   document.getElementById("session-label").textContent = "session: " + sessionId.substr(8);
 
   function autoResize(el) {
-    el.style.height = "42px";
+    el.style.height = "48px";
     el.style.height = Math.min(el.scrollHeight, 120) + "px";
   }
 
@@ -290,7 +360,7 @@
     if (!question) return;
 
     input.value = "";
-    input.style.height = "42px";
+    input.style.height = "48px";
     btn.disabled = true;
 
     addMessage("user", question);
@@ -298,30 +368,25 @@
     const loadingMsg = addMessage("agent", "Thinking...", true);
 
     try {
-    const response = await fetch(API_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ question, session_id: sessionId })
-    });
+        const response = await fetch(API_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ question, session_id: sessionId })
+        });
 
-    const data = await response.json();
-    loadingMsg.remove();
+        const data = await response.json();
+        loadingMsg.remove();
 
-    if (!response.ok) {
-        // API returned an error (400, 500 etc)
-        addMessage("agent", data.error || "Something went wrong. Please try again.");
-    } else {
-        addMessage("agent", data.answer);
+        if (!response.ok) {
+            addMessage("agent", data.error || "Something went wrong. Please try again.");
+        } else {
+            addMessage("agent", data.answer);
+        }
+
+    } catch (error) {
+        loadingMsg.remove();
+        addMessage("agent", "Cannot reach the server. Make sure it is running.");
     }
-
-} catch (error) {
-    loadingMsg.remove();
-    if (error.message.includes("Failed to fetch")) {
-        addMessage("agent", "Cannot reach the server. Make sure uvicorn is running.");
-    } else {
-        addMessage("agent", "Something went wrong. Please try again.");
-    }
-}
 
     btn.disabled = false;
     input.focus();

@@ -216,9 +216,9 @@
     <div class="empty-state" id="empty-state">
       <p>Ask me anything from your JEE notes</p>
       <div class="suggestions">
-        <button class="suggestion" onclick="fillInput('What is Newton\\'s second law?')">Newton's second law</button>
+        <button class="suggestion" onclick="fillInput('What is Newton&apos;s second law?')">Newton's second law</button>
         <button class="suggestion" onclick="fillInput('Calculate KE for 10kg at 5 m/s')">Calculate KE</button>
-        <button class="suggestion" onclick="fillInput('What is Coulomb\\'s law?')">Coulomb's law</button>
+        <button class="suggestion" onclick="fillInput('What is Coulomb&apos;s law?')">Coulomb's law</button>
         <button class="suggestion" onclick="fillInput('Explain work-energy theorem')">Work-energy theorem</button>
       </div>
     </div>
@@ -239,7 +239,7 @@
 </div>
 
 <script>
-  const API_URL = "http://localhost:8000/chat";
+  const API_URL = "/chat";
   const sessionId = "session_" + Math.random().toString(36).substr(2, 9);
   document.getElementById("session-label").textContent = "session: " + sessionId.substr(8);
 

@@ -1,3 +1,12 @@
+---
+title: AI JEE Tutor
+emoji: 📚
+colorFrom: blue
+colorTo: purple
+sdk: docker
+pinned: false
+---
+
 # JEE AI Agent
 
 A full-stack multilingual AI-powered JEE tutor with a LangGraph agent, RAG 

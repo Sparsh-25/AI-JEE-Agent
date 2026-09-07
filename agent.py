@@ -29,13 +29,13 @@ def detect_language(text: str) -> str:
         return "hi"
 
     hindi_words = [
-        "kya", "hai", "ka", "ki", "ke", "mein", "aur", "nahi",
+        "kya", "hai", "mein", "aur", "nahi",
         "kaise", "kyun", "niyam", "sutra", "urja", "bal", "shakti",
-        "doosra", "pehla", "batao", "samjhao", "coulomb", "newton",
+        "doosra", "pehla", "batao", "samjhao",
         "vidyut", "kshetra", "aavesh", "dhaara", "teesra"
     ]
     words = text.lower().split()
-    if sum(1 for w in words if w in hindi_words) >= 1:
+    if sum(1 for w in words if w in hindi_words) >= 2:
         return "hi"
     return "en"
 
@@ -185,7 +185,8 @@ Context:
         else:
             clean_messages.append(SystemMessage(content=f"[Previous answer]: {content[:150]}"))
 
-    clean_messages.append(HumanMessage(content=f"Answer this in English only: {question}"))
+    answer_language = "Hindi" if language == "hi" else "English"
+    clean_messages.append(HumanMessage(content=f"Answer this in {answer_language} only: {question}"))
 
     response = llm.invoke(clean_messages)
     final_answer = response.content

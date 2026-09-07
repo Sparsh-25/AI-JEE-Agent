@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>JEE AI Tutor</title>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -270,6 +273,34 @@
       color: #fff;
       transform: translateY(-1px);
     }
+    .bubble > *:first-child { margin-top: 0; }
+    .bubble > *:last-child { margin-bottom: 0; }
+    .bubble p { margin: 0 0 10px; }
+    .bubble strong { font-weight: 600; color: #fff; }
+    .bubble em { font-style: italic; }
+    .bubble ul, .bubble ol { margin: 8px 0 10px; padding-left: 22px; }
+    .bubble li { margin: 4px 0; }
+    .bubble h1, .bubble h2, .bubble h3, .bubble h4 {
+      font-size: 15px; font-weight: 600; color: #fff; margin: 14px 0 8px;
+    }
+    .bubble code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 13px; padding: 2px 6px; border-radius: 6px;
+      background: rgba(0, 242, 254, 0.12); color: #7fe7ff;
+    }
+    .bubble pre {
+      background: rgba(0, 0, 0, 0.35); padding: 12px 14px; border-radius: 12px;
+      overflow-x: auto; margin: 10px 0;
+    }
+    .bubble pre code { background: none; padding: 0; color: #cbd5e1; }
+    .bubble hr { border: none; border-top: 1px solid rgba(255,255,255,0.12); margin: 12px 0; }
+    .bubble table { border-collapse: collapse; margin: 10px 0; font-size: 14px; }
+    .bubble th, .bubble td { border: 1px solid rgba(255,255,255,0.14); padding: 6px 10px; }
+    .bubble .katex { font-size: 1.02em; }
+    .bubble .katex-display {
+      margin: 12px 0; padding: 4px 0;
+      overflow-x: auto; overflow-y: hidden;
+    }
   </style>
 </head>
 <body>
@@ -334,6 +365,32 @@
     return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   }
 
+  function renderAnswer(text) {
+    const math = [];
+    const stash = (tex, display) => {
+      math.push({ tex, display });
+      return `@@MATH${math.length - 1}@@`;
+    };
+
+    let s = text
+      .replace(/\\\[([\s\S]+?)\\\]/g, (m, tex) => stash(tex, true))
+      .replace(/\$\$([\s\S]+?)\$\$/g, (m, tex) => stash(tex, true))
+      .replace(/\\\(([\s\S]+?)\\\)/g, (m, tex) => stash(tex, false));
+
+    let html = marked.parse(s, { breaks: true, gfm: true });
+
+    html = html.replace(/@@MATH(\d+)@@/g, (m, i) => {
+      const { tex, display } = math[Number(i)];
+      try {
+        return katex.renderToString(tex, { displayMode: display, throwOnError: false });
+      } catch (e) {
+        return `<code>${tex}</code>`;
+      }
+    });
+
+    return html;
+  }
+
   function addMessage(role, text, isLoading = false) {
     const empty = document.getElementById("empty-state");
     if (empty) empty.remove();
@@ -342,10 +399,20 @@
     const div = document.createElement("div");
     div.className = `message ${role}${isLoading ? " loading" : ""}`;
 
-    div.innerHTML = `
-      <div class="bubble">${text}</div>
-      <div class="timestamp">${getTime()}</div>
-    `;
+    const bubble = document.createElement("div");
+    bubble.className = "bubble";
+    if (role === "agent" && !isLoading) {
+      bubble.innerHTML = renderAnswer(text);
+    } else {
+      bubble.textContent = text;
+    }
+
+    const stamp = document.createElement("div");
+    stamp.className = "timestamp";
+    stamp.textContent = getTime();
+
+    div.appendChild(bubble);
+    div.appendChild(stamp);
 
     messages.appendChild(div);
     messages.scrollTop = messages.scrollHeight;

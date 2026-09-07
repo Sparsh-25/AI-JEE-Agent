@@ -6,7 +6,6 @@ from langchain_chroma import Chroma
 
 load_dotenv()
 
-
 embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
 
 vectordb = Chroma(
@@ -15,12 +14,12 @@ vectordb = Chroma(
 )
 
 llm = ChatGroq(
-    model= "llama-3.1-8b-instant"
+    model= "openai/gpt-oss-120b"
 )
 
 prompt = ChatPromptTemplate.from_messages([
     ("system", """You are a JEE tutor. Answer using the only context below if the answer isn't in context, the answer in the context should be well written in context, say 'I do not have any information regarding this question'
-    
+
     Context:
     {context}"""),
 
@@ -28,11 +27,9 @@ prompt = ChatPromptTemplate.from_messages([
 
 ])
 
-
 def ask(question):
     chunks = vectordb.similarity_search(question, k=3)
     context = "\n\n".join([chunk.page_content for chunk in chunks])
     chain = prompt | llm
     response = chain.invoke({"context": context, "question": question})
     return response.content
-

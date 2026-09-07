@@ -1,15 +1,17 @@
 from dotenv import load_dotenv
-from langchain_community.document_loaders import PyPDFLoader
-from langchain_text_splitters import RecursiveCharacterTextSplitter
-import os
-from langchain_community.embeddings import HuggingFaceEmbeddings
-from langchain_chroma import Chroma  # new, correct
 
+from langchain_community.document_loaders import PyPDFLoader
+
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+
+import os
+
+from langchain_community.embeddings import HuggingFaceEmbeddings
+
+from langchain_chroma import Chroma
 
 load_dotenv()
 
-
-# Load PDFs
 all_chunks = []
 
 splitter = RecursiveCharacterTextSplitter(
@@ -27,7 +29,6 @@ for filename in os.listdir("data"):
 
 print(f"\nTotal chunks: {len(all_chunks)}")
 
-
 print('\nLoading embedding model.....')
 
 embeddings = HuggingFaceEmbeddings(
@@ -41,9 +42,5 @@ vectordb = Chroma.from_documents(
 )
 
 print(f"Done. {vectordb._collection.count()} chunks stored in database.")
+
 print("Do not run this file again unless you add new PDFs.")
-
-
-
-
-

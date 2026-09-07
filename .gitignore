@@ -1,4 +1,4 @@
-# ── Secrets — NEVER push these ──────────────────────────────────────────────
+
 .env
 
 # ── Python cache ─────────────────────────────────────────────────────────────
@@ -25,3 +25,5 @@ trial/
 # If it's large, consider using Git LFS: https://git-lfs.github.com/
 
 data/
+
+study_guide.md
